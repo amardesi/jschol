@@ -46,19 +46,21 @@ class ItemPage extends PageBase {
     return "root"  // This is only being used for super user access
   }
 
-  tabNameFromHash() {
+  nameFromHash() {
     return !(typeof location === "undefined") ? location.hash.toLowerCase().replace(/^#/, "") : ""
   }
 
-  // currentTab should be 'main' whenever hash starts with 'article_" (or is empty)
-  articleHashHandler = h => { return ((h.startsWith("article") || h=='') ? "main" : h) }
+  // currentTab should be 'main' whenever hash starts with 'article_', 'page=', or is empty
+  tabFromHashName = h => {
+    return ((h.match(/^(article|page=).*/) || h=='') ? "main" : h)
+  }
 
-  state = { currentTab: this.articleHashHandler(this.tabNameFromHash()) }
+  state = { currentTab: this.tabFromHashName(this.nameFromHash()) }
 
   componentDidMount(...args) {
     // Check hash whenever back or forward button clicked
     window.onpopstate = (event) => {
-      var h = this.articleHashHandler(this.tabNameFromHash())
+      var h = this.tabFromHashName(this.nameFromHash())
       if ((h != this.state.currentTab) && anchors.includes(h)) {
         this.setState({currentTab: h})
       }
@@ -89,13 +91,13 @@ class ItemPage extends PageBase {
   }
 
   changeTab = tabName => {
-    this.setState({currentTab: this.articleHashHandler(tabName) })
+    this.setState({currentTab: this.tabFromHashName(tabName) })
     // Set hash based on what was clicked.
     window.location.hash=tabName
   }
 
   renderData = data => {
-    let currentTab = tab_anchors.includes(this.state.currentTab) ? this.state.currentTab : "main" 
+    let currentTab = tab_anchors.includes(this.state.currentTab) ? this.state.currentTab : "main"
     let d = data
     let a = d.attrs
     let meta_authors = a.author_hide ? null : d.authors.slice(0, 85).map((author, i) => {

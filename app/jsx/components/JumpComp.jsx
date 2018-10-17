@@ -16,7 +16,7 @@ class JumpComp extends React.Component {
     }
   }
 
-  widthChange = ()=> {
+  widthChange = () => {
     this.setState({show: this.mq.matches})
   }
 
@@ -32,20 +32,25 @@ class JumpComp extends React.Component {
           <h2>Jump To</h2>
         </header>
         <div className="c-jump">
-          <Link id="c-jump__label" to="#" onClick={(e)=>this.handleClick(e, "main")}>Article</Link>
+          <Link id="c-jump__label" to="#" onClick={(e) =>this.handleClick(e, "main")}>Article</Link>
           <ul className="c-jump__tree" aria-labelledby="c-jump__label">
          { this.props.attrs.abstract &&
-            <li><Link to="#" onClick={(e)=>this.handleClick(e, "article_abstract")}>Abstract</Link></li>
+            <li><Link to="#" onClick={(e) =>this.handleClick(e, "article_abstract")}>Abstract</Link></li>
          }
-            <li><Link to="#" onClick={(e)=>this.handleClick(e, "article_main")}>Main Content</Link></li>
+
+         /* BEGIN TEMPORARY FOR TESTING */
+            <li><Link to="#" onClick={(e) =>this.handleClick(e, "page=3")}>2. The Education of ...</Link></li>
+         /* END TEMPORARY FOR TESTING */
+
+            <li><Link to="#" onClick={(e) =>this.handleClick(e, "article_main")}>Main Content</Link></li>
             {/* ToDo: Add Links here to headers when item content type is HTML */}
           </ul>
           <ul className="c-jump__siblings">
          { this.props.attrs.supp_files &&
-            <li><Link to="#" onClick={(e)=>this.handleClick(e, "supplemental")}>Supplemental Material</Link></li>
+            <li><Link to="#" onClick={(e) =>this.handleClick(e, "supplemental")}>Supplemental Material</Link></li>
          }
-            <li><Link to="#" onClick={(e)=>this.handleClick(e, "metrics")}>Metrics</Link></li>
-            <li><Link to="#" onClick={(e)=>this.handleClick(e, "author")}>Author & Article Info</Link></li>
+            <li><Link to="#" onClick={(e) =>this.handleClick(e, "metrics")}>Metrics</Link></li>
+            <li><Link to="#" onClick={(e) =>this.handleClick(e, "author")}>Author & Article Info</Link></li>
           </ul>
         </div>
       </section>
