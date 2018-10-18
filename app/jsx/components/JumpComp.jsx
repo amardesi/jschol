@@ -38,9 +38,9 @@ class JumpComp extends React.Component {
             <li><Link to="#" onClick={(e) =>this.handleClick(e, "article_abstract")}>Abstract</Link></li>
          }
 
-         /* BEGIN TEMPORARY FOR TESTING */
+         {/* BEGIN TEMPORARY FOR TESTING */}
             <li><Link to="#" onClick={(e) =>this.handleClick(e, "page=3")}>2. The Education of ...</Link></li>
-         /* END TEMPORARY FOR TESTING */
+         {/* END TEMPORARY FOR TESTING */}
 
             <li><Link to="#" onClick={(e) =>this.handleClick(e, "article_main")}>Main Content</Link></li>
             {/* ToDo: Add Links here to headers when item content type is HTML */}
