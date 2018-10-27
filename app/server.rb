@@ -153,6 +153,7 @@ else
 end
 
 # Internal modules to implement specific pages and functionality
+require_relative '../util/normalize.rb'
 require_relative '../util/sanitize.rb'
 require_relative '../util/xmlutil.rb'
 require_relative '../util/event.rb'
@@ -406,15 +407,6 @@ get %r{/repec(.*)} do
 end
 
 ###################################################################################################
-# Sanitize incoming filenames before applying them to the filesystem. In particular, prevent
-# attacks using "../" as part of the path.
-def sanitizeFilePath(path)
-  path = path.gsub(/[^-a-z A-Z0-9_.\/]/, '_').split("/").map { |part|
-    part.sub(/^\.+/, '_').sub(/\.+$/, '_')
-  }.join('/')
-end
-
-###################################################################################################
 get %r{/assets/([0-9a-f]{64})} do |hash|
   s3Path = "#{ENV['S3_PREFIX'] || raise("missing env S3_PREFIX")}/binaries/#{hash[0,2]}/#{hash[2,2]}/#{hash}"
   obj = $s3Bucket.object(s3Path)
@@ -429,6 +421,25 @@ get %r{/assets/([0-9a-f]{64})} do |hash|
               filename: (obj.metadata["original_path"] || "").sub(%r{.*/}, ''))
     s3Tmp.unlink
   }
+end
+
+###################################################################################################
+# Sanitize incoming filenames before applying them to the filesystem. In particular, prevent
+# attacks using "../" as part of the path.
+def sanitizeFilePath(path)
+  path = path.gsub(/[^-a-z A-Z0-9_.\/]/, '_').split("/").map { |part|
+    part.sub(/^\.+/, '_').sub(/\.+$/, '_')
+  }.join('/')
+end
+
+###################################################################################################
+def isValidContentKey(shortArk, key)
+  (-1..1).each { |offset|
+    if key == calcContentKey(shortArk, Date.today + offset)
+      return true
+    end
+  }
+  return false
 end
 
 ###################################################################################################
@@ -877,6 +888,7 @@ get "/api/globalStatic/*" do
   return pageData.to_json
 end
 
+###################################################################################################
 def parseIssueHeaderData(unit_id, vol, iss, issue)
   title = issue[:attrs] ? JSON.parse(issue[:attrs])["title"] : nil
   return {'unit_id': unit_id, 'volume': vol, 'issue': iss, 'title': title, 'numbering': issue[:numbering]}
@@ -966,15 +978,6 @@ def calcContentKey(shortArk, date = nil)
   Digest::MD5.hexdigest("V01:#{shortArk}:#{(date || Date.today).iso8601}:#{$jscholKey}")
 end
 
-###################################################################################################
-def isValidContentKey(shortArk, key)
-  (-1..1).each { |offset|
-    if key == calcContentKey(shortArk, Date.today + offset)
-      return true
-    end
-  }
-  return false
-end
 
 ###################################################################################################
 def getItemUsage(itemID)
@@ -982,6 +985,20 @@ def getItemUsage(itemID)
     attrs = JSON.parse(v.attrs)
     { month: "#{m.to_s[0..3]}-#{m.to_s[4..5]}", hits: attrs['hit'] || 0, downloads: attrs['dl'] || 0 }
   }
+end
+
+###################################################################################################
+def wordFreq(string)
+  words = string.split(' ')
+  stopwords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with"]
+  # Other stopwords: its, we
+  frequency = Hash.new(0)
+  words.select { |w|
+    w = normalize(w)
+    w = w.downcase.gsub(/[^0-9a-z ]/i, '')
+    w != '' && (!stopwords.include? w) && frequency[w] += 1
+  }
+  return frequency
 end
 
 ###################################################################################################
@@ -1045,6 +1062,11 @@ get "/api/item/:shortArk" do |shortArk|
         :unit => unit ? unit.values.reject { |k,v| k==:attrs } : nil,
         :usage => getItemUsage(id),
       }
+
+      if attrs['abstract'] && attrs['abstract'] != 'No abstract'
+        terms = wordFreq(attrs['abstract'].gsub("\n",'')).sort_by { |_, v| -v }.first(10).map(&:first)
+        puts terms
+      end
 
       if attrs['disable_download'] && Date.parse(attrs['disable_download']) > Date.today
         body[:download_restricted] = Date.parse(attrs['disable_download']).iso8601
