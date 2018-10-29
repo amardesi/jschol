@@ -991,10 +991,9 @@ end
 def wordFreq(string)
   words = string.split(' ')
   stopwords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with"]
-  # Other stopwords: its, we
+  # Hmm, include other stopwords? i.e. its, we, which
   frequency = Hash.new(0)
   words.select { |w|
-    w = normalize(w)
     w = w.downcase.gsub(/[^0-9a-z ]/i, '')
     w != '' && (!stopwords.include? w) && frequency[w] += 1
   }
@@ -1063,10 +1062,17 @@ get "/api/item/:shortArk" do |shortArk|
         :usage => getItemUsage(id),
       }
 
+      content = nil
       if attrs['abstract'] && attrs['abstract'] != 'No abstract'
-        terms = wordFreq(attrs['abstract'].gsub("\n",'')).sort_by { |_, v| -v }.first(10).map(&:first)
-        puts terms
+        content = normalize(attrs['abstract'])
+      elsif body[:content_html]
+        content = normalize(body[:content_html])
+      elsif pdf_url
+        content = "FOO" # incomplete
       end
+      terms = content && wordFreq(content.gsub("\n",'')).delete_if{|k,_| k.length < 3}.sort_by { |_, v| -v }.first(10).map(&:first)
+      # ToDo: Place parameters into a cloudsearch query to get top 5 most relevant related items.
+      puts terms
 
       if attrs['disable_download'] && Date.parse(attrs['disable_download']) > Date.today
         body[:download_restricted] = Date.parse(attrs['disable_download']).iso8601
