@@ -994,7 +994,7 @@ def wordFreq(string)
   # Hmm, include other stopwords? i.e. its, we, which
   frequency = Hash.new(0)
   words.select { |w|
-    w = w.downcase.gsub(/[^0-9a-z ]/i, '')
+    w = w.downcase.gsub(/[^0-9a-z\- ]/i, '')
     w != '' && (!stopwords.include? w) && frequency[w] += 1
   }
   return frequency
