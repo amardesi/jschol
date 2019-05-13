@@ -124,6 +124,11 @@ class WizardComp extends React.Component {
       tabHead.focus()
   }
 
+  setAsRoot = ()=> {
+    this.setState({ launchedFromRoot: true })
+  }
+
+
   handleCloseModal = ()=> {
     this.setState({ showModal: false })
     this.setState({data: this.init()})
@@ -168,14 +173,15 @@ class WizardComp extends React.Component {
           <WizModal isOpen={this.state.showModal && d.wizardStep === 4} onRequestClose={this.handleCloseModal} parentSelector={this.props.parentSelector}>
             <div className={d.wizardStep === 4 ? `c-wizard__current-${d.wizardDir}` : `c-wizard__standby-${d.wizardDir}`} aria-hidden={d.wizardStep === 4 ? null : true}>
               {/* [4] What is your departmental affiliation? */}
-              <WizardUnitComp goForward = {this.goForward} goBackward = {this.goBackward} closeModal={this.handleCloseModal} />
+              <WizardUnitComp goForward = {this.goForward} goBackward = {this.goBackward} closeModal={this.handleCloseModal} 
+                              setAsRoot = {this.setAsRoot} />
             </div>
           </WizModal>
           <WizModal isOpen={this.state.showModal && d.wizardStep === 5} onRequestClose={this.handleCloseModal} parentSelector={this.props.parentSelector}>
             <div className={d.wizardStep === 5 ? `c-wizard__current-${d.wizardDir}` : `c-wizard__standby-${d.wizardDir}`} aria-hidden={d.wizardStep === 5 ? null : true}>
               {/* [5] What [title] series would you like to deposit your work in?  */}
-              <WizardSeriesComp goForward = {this.goForward} goBackward = {this.goBackward} closeModal={this.handleCloseModal}
-                                subi_link = {SUBI_LINK} />
+              <WizardSeriesComp goForward = {this.goForward} goBackward = {this.goBackward} closeModal={this.handleCloseModal} 
+                                setAsRoot = {this.setAsRoot} subi_link = {SUBI_LINK} />
             </div>
           </WizModal>
           <WizModal isOpen={this.state.showModal && d.wizardStep === 6} onRequestClose={this.handleCloseModal} parentSelector={this.props.parentSelector}>

@@ -77,15 +77,26 @@ class WizardSeriesComp extends React.Component {
           Loading...
         </div>
       :
-       [<div key="0" className="c-wizard__heading">
-          Into which <b>{wiz.unitName}</b> series would you like to deposit your work?
-        </div>,
-        <ul key="1" className="c-wizard__list">
-          {seriesList}
-        </ul>,
-        <footer key="2">
-          We use these questions to direct you to the right place to deposit your materials.
-        </footer>]
+        <React.Fragment>
+          <div className="c-wizard__heading">
+            Into which <b>{wiz.unitName}</b> series would you like to deposit your work?
+          </div>
+          <ul className="c-wizard__list">
+            {seriesList}
+          </ul>
+          <ul className="c-wizard__list-black">
+            <li>
+              <a onClick = {(event)=>{
+                event.preventDefault()
+                this.props.setAsRoot()
+                this.props.goBackward(1)}
+              } href="">Explore additional deposit options</a>
+            </li>
+          </ul>
+          <footer>
+            We use these questions to direct you to the right place to deposit your materials.
+          </footer>
+        </React.Fragment>
       }
       </div>
       )}}

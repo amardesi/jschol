@@ -70,15 +70,26 @@ class WizardUnitComp extends React.Component {
           Loading... 
         </div>
       :
-       [<div key="0" className="c-wizard__heading">
-          What is your departmental affiliation?
-        </div>,
-        <ul key="1" className="c-wizard__list">
-          {unitList}
-        </ul>,
-        <footer key="2">
-          Don't see your department? <a href="https://help.escholarship.org/support/solutions/articles/9000131086-request-a-new-unit">Add it to eScholarship here</a>.
-        </footer>]
+        <React.Fragment>
+          <div className="c-wizard__heading">
+            What is your departmental affiliation?
+          </div>
+          <ul className="c-wizard__list">
+            {unitList}
+          </ul>
+          <ul className="c-wizard__list-black">
+            <li>
+              <a onClick = {(event)=>{
+                event.preventDefault()
+                this.props.setAsRoot()
+                this.props.goBackward(1)}
+              } href="">Explore additional deposit options</a>
+            </li>
+          </ul>
+          <footer >
+            Don't see your department? <a href="https://help.escholarship.org/support/solutions/articles/9000131086-request-a-new-unit">Add it to eScholarship here</a>.
+          </footer>
+        </React.Fragment>
       }
       </div>
       )}}
